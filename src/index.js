@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/database');
 const { listenMessage } = require('./utils/messaging');
 const workflowController = require('./controllers/workflowController');
+const logger = require("./utils/logger")
 dotenv.config();
 
 const app = express();
@@ -11,12 +12,12 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(express.json());
 
-connectDB();
+connectDB(); require("./initialize")
+
+app.post('/workflow/create', workflowController.createWorkflow);
+app.post('/workflow/:id/start', workflowController.startWorkflow);
 
 listenMessage("workflow", workflowController.startWorkflowListener);
-
-// Workflow endpoint
-app.post('/workflow/:id/start', workflowController.startWorkflow);
 
 app.listen(PORT, () => {
     logger.notice(`Server is running on http://localhost:${PORT}`);

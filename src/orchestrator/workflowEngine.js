@@ -15,13 +15,13 @@ class WorkflowEngine {
         while (this.stateManager.state === 'RUNNING') {
             const step = this.stateManager.getCurrentStep();
             try {
-                await TaskExecutor.execute(step.task, { workflowId: this.stateManager.workflow._id });
+                await TaskExecutor.execute(step.task, step);
                 this.stateManager.moveToNextStep();
             } catch (error) {
                 logger.error(`Error in step: ${step.task}`);
                 if (step.onFailure) {
                     logger.info(`Redirecting to failure task: ${step.onFailure}`);
-                    await TaskExecutor.execute(step.onFailure, { workflowId: this.stateManager.workflow._id });
+                    await TaskExecutor.execute(step.onFailure, step);
                 }
                 this.stateManager.markFailed();
             }
