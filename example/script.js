@@ -19,14 +19,16 @@ document.getElementById('workflowForm').addEventListener('submit', async functio
 
         if (!response.ok) {
             const errorData = await response.json();
-            alert('Error: ' + errorData.message);
+            document.getElementById('loadingSpinner').style.display = 'none';
+            updateTaskStatus('error', errorData.message);
         } else {
             const data = await response.json();
-            alert('Workflow created: ' + JSON.stringify(data.workflow));
-            loadWorkflows();
+            loadWorkflows(); // Refresh workflows list to show the new one
+            updateTaskStatus('success', 'Workflow created successfully');
         }
     } catch (error) {
-        alert('Error: ' + error.message);
+        document.getElementById('loadingSpinner').style.display = 'none';
+        updateTaskStatus('error', error.message);
     }
 });
 
@@ -43,52 +45,72 @@ function addStepForm(stepCount) {
     stepEntry.setAttribute('data-step', stepCount);
 
     stepEntry.innerHTML = `
-                <label for="type_${stepCount}">Step ${stepCount} Type:</label>
-                <select id="type_${stepCount}" name="type" onchange="updateStepFields(${stepCount})" required>
-                    <option value="ACTION">ACTION</option>
-                    <option value="DECISION">DECISION</option>
-                    <option value="WAIT">WAIT</option>
-                </select><br>
-                <label for="task_${stepCount}">Task:</label>
-                <input type="text" id="task_${stepCount}" name="task" placeholder="Task" required><br>
-                <div id="actionFields_${stepCount}" class="action-fields">
-                    <label for="url_${stepCount}">URL:</label>
-                    <input type="text" id="url_${stepCount}" name="url" placeholder="Enter URL"><br>
-                    <label for="method_${stepCount}">Method:</label>
-                    <select id="method_${stepCount}" name="method">
-                        <option value="GET">GET</option>
-                        <option value="POST">POST</option>
-                    </select><br>
-                </div>
-                <div id="decisionFields_${stepCount}" class="decision-fields" style="display:none;">
-                    <label for="condition_${stepCount}">Condition:</label>
-                    <input type="text" id="condition_${stepCount}" name="condition" placeholder="Condition"><br>
-                </div>
-                <div id="waitFields_${stepCount}" class="wait-fields" style="display:none;">
-                    <label for="waitTime_${stepCount}">Wait Time (seconds):</label>
-                    <input type="number" id="waitTime_${stepCount}" name="waitTime" placeholder="Wait Time"><br>
-                </div>
-                <label for="onSuccess_${stepCount}">On Success:</label>
-                <input type="text" id="onSuccess_${stepCount}" name="onSuccess" placeholder="Next Step"><br>
-                <label for="onFailure_${stepCount}">On Failure:</label>
-                <input type="text" id="onFailure_${stepCount}" name="onFailure" placeholder="Error Handling"><br>
-            `;
+      <label for="type_${stepCount}">Step ${stepCount} Type:</label>
+      <select id="type_${stepCount}" name="type" onchange="updateStepFields(${stepCount})" required>
+        <option value="ACTION">ACTION</option>
+        <option value="DECISION">DECISION</option>
+        <option value="WAIT">WAIT</option>
+      </select><br>
+      <label for="task_${stepCount}">Task:</label>
+      <input type="text" id="task_${stepCount}" name="task" placeholder="Task" required><br>
+      <div id="actionFields_${stepCount}" class="action-fields">
+        <label for="url_${stepCount}">URL:</label>
+        <input type="text" id="url_${stepCount}" name="url" placeholder="Enter URL"><br>
+        <label for="method_${stepCount}">Method:</label>
+        <select id="method_${stepCount}" name="method">
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+        </select><br>
+      </div>
+      <div id="decisionFields_${stepCount}" class="decision-fields" style="display:none;">
+        <label for="condition_${stepCount}">Condition:</label>
+        <input type="text" id="condition_${stepCount}" name="condition" placeholder="Condition"><br>
+      </div>
+      <div id="waitFields_${stepCount}" class="wait-fields" style="display:none;">
+        <label for="waitTime_${stepCount}">Wait Time (seconds):</label>
+        <input type="number" id="waitTime_${stepCount}" name="waitTime" placeholder="Wait Time"><br>
+      </div>
+      <label for="onSuccess_${stepCount}">On Success:</label>
+      <input type="text" id="onSuccess_${stepCount}" name="onSuccess" placeholder="Next Step"><br>
+      <label for="onFailure_${stepCount}">On Failure:</label>
+      <input type="text" id="onFailure_${stepCount}" name="onFailure" placeholder="Error Handling"><br>
+      <div id="status_${stepCount}" class="status pending">Status: Pending</div>
+      <div id="completedAt_${stepCount}" class="completedAt">Completed At: N/A</div>
+      <button type="button" onclick="startTask(${stepCount})">Start Task</button>
+    `;
 
     document.getElementById('stepsList').appendChild(stepEntry);
 }
 
-// Update Step Fields based on Type
-function updateStepFields(stepCount) {
-    const type = document.getElementById(`type_${stepCount}`).value;
-    document.getElementById(`actionFields_${stepCount}`).style.display = (type === 'ACTION') ? 'block' : 'none';
-    document.getElementById(`decisionFields_${stepCount}`).style.display = (type === 'DECISION') ? 'block' : 'none';
-    document.getElementById(`waitFields_${stepCount}`).style.display = (type === 'WAIT') ? 'block' : 'none';
+// Start Task and Update Status
+async function startTask(stepCount) {
+    const statusElement = document.getElementById(`status_${stepCount}`);
+    const completedAtElement = document.getElementById(`completedAt_${stepCount}`);
+
+    // Update status to In Progress
+    statusElement.textContent = 'Status: In Progress';
+    statusElement.classList.remove('pending');
+    statusElement.classList.add('in-progress');
+
+    // Simulate task processing (e.g., API call)
+    await new Promise((resolve) => setTimeout(resolve, 3000)); // Simulate task running for 3 seconds
+
+    // Update status to Completed
+    const completedAt = new Date().toISOString();
+    statusElement.textContent = 'Status: Completed';
+    statusElement.classList.remove('in-progress');
+    statusElement.classList.add('completed');
+
+    completedAtElement.textContent = `Completed At: ${completedAt}`;
+
+    // Update task in the backend (optional, based on your workflow logic)
+    // await updateTaskStatusBackend(stepCount, completedAt); // If necessary, update backend with new status
 }
 
 // Gather all Steps
 function gatherSteps() {
     const steps = [];
-    document.querySelectorAll('.step-entry').forEach(stepEntry => {
+    document.querySelectorAll('.step-entry').forEach((stepEntry) => {
         const step = {
             name: `step${stepEntry.dataset.step}`,
             type: document.getElementById(`type_${stepEntry.dataset.step}`).value,
@@ -102,10 +124,12 @@ function gatherSteps() {
             onSuccess: document.getElementById(`onSuccess_${stepEntry.dataset.step}`).value,
             onFailure: document.getElementById(`onFailure_${stepEntry.dataset.step}`).value,
         };
+
         steps.push(step);
     });
     return steps;
 }
+
 
 // Load Existing Workflows
 async function loadWorkflows() {

@@ -85,6 +85,19 @@
       .status {
         margin-top: 10px;
       }
+      .status {
+        font-weight: bold;
+        color: #4caf50;
+      }
+      .status.pending {
+        color: #f39c12;
+      }
+      .status.in-progress {
+        color: #f1c40f;
+      }
+      .status.completed {
+        color: #27ae60;
+      }
     </style>
   </head>
   <body>
@@ -109,7 +122,7 @@
         <button type="submit">Create Workflow</button>
       </form>
 
-      <div class="loading-spinner" id="loadingSpinner">
+      <div class="loading-spinner" id="loadingSpinner" style="display: none;">
         Creating Workflow...
       </div>
 
