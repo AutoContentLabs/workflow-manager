@@ -4,19 +4,37 @@ module.exports = {
     "name": "default",
     "steps": [
         {
-            "name":"step1",
+            "name": "step1",
             "type": "action",
             "task": "collectData",
             "parameters": { "url": "http://example.com", "method": "GET" },
-            "onFailure": "handleFailure"
+            "onSuccess": "step2",
+            "onFailure": "handleFailure",
         },
         {
-            "name":"step2",
+            "name": "step2",
             "type": "delay",
             "task": "waitData",
             "parameters": { "duration": 5000 },
-            "onFailure": "handleFailure"
+            "onSuccess": "step3",
+            "onFailure": "step5",
         },
+        {
+            "name": "step3",
+            "type": "action",
+            "task": "validateData",
+            "onSuccess": "step4",
+            "onFailure": "handleFailure",
+            "parameters": {}
+        },
+        {
+            "name": "step4",
+            "type": "action",
+            "task": "finalizeData",
+            "onSuccess": null,
+            "onFailure": "handleFailure",
+            "parameters": {}
+        }
     ]
 };
 

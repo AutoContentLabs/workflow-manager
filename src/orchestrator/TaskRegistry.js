@@ -21,13 +21,14 @@ class TaskRegistry {
 const taskRegistry = new TaskRegistry();
 
 taskRegistry.register('action', async (taskName, step) => {
-    console.log(`action ${taskName}`)
-    return "" //await sendMessage(taskName, { value: step });
+    let result;
+    const cleanStep = JSON.parse(JSON.stringify(step));
+    result = await sendMessage(taskName, { value: cleanStep });
+    return result
 });
 
 taskRegistry.register('delay', async (taskName, step) => {
-    console.log(`delay  ${taskName}`)
-    return "" //new Promise(resolve => setTimeout(resolve, step.parameters.duration));
+    return new Promise(resolve => setTimeout(resolve, step.parameters.duration));
 });
 
 module.exports = taskRegistry;

@@ -10,42 +10,51 @@ class WorkflowEngine {
 
     async run() {
         if (!this.stateManager.workflow.startedAt) {
-            this.stateManager.workflow.startedAt = new Date(); // Workflow başlangıç zamanı
+            this.stateManager.workflow.startedAt = new Date();
             await this.stateManager.workflow.save();
         }
         logger.info(`Starting workflow: ${this.stateManager.workflow.name}`);
         this.stateManager.state = 'RUNNING';
 
-        while (this.stateManager.state === 'RUNNING') {
-            const step = this.stateManager.getCurrentStep();
+        for (const step of this.stateManager.workflow.steps) {
+            if (step.status !== 'PENDING') continue;
+
             try {
                 await TaskExecutor.execute(step.task, step);
 
-                step.status = 'SUCCESS'; // Adım başarıyla tamamlandı
-                step.completedAt = new Date(); // Tamamlanma zamanı
+                step.status = 'SUCCESS';
+                step.completedAt = new Date();
                 await this.stateManager.updateStepStatus(step);
 
-                await this.stateManager.moveToNextStep(); // Sonraki adıma geçiş
+                if (step.onSuccess) {
+                    const nextStep = this.stateManager.getNextStep(step.onSuccess);
+                    if (nextStep) {
+                        logger.info(`Moving to next step: ${nextStep.name}`);
+                        continue;
+                    }
+                }
+                break;
             } catch (error) {
-                logger.error(`Error in step: ${step.task}`);
-                step.status = 'FAILED'; // Adım başarısız oldu
-                step.completedAt = new Date(); // Tamamlanma zamanı
+                logger.error(`Error executing step: ${step.name}`, error);
+
+                step.status = 'FAILED';
+                step.completedAt = new Date();
                 await this.stateManager.updateStepStatus(step);
 
                 if (step.onFailure) {
-                    logger.info(`Executing failure task: ${step.onFailure}`);
-                    await TaskExecutor.execute(step.onFailure, step);
-                    await this.stateManager.handleFailure();
-                } else {
-                    await this.stateManager.updateWorkflowState('FAILED'); // Workflow başarısız
+                    logger.info(`Executing failure step: ${step.onFailure}`);
+                    const failureStep = this.stateManager.getNextStep(step.onFailure);
+                    if (failureStep) continue;
                 }
+
+                this.stateManager.updateWorkflowState('FAILED');
+                break;
             }
         }
 
-        this.stateManager.workflow.completedAt = new Date(); // Workflow tamamlandı
-        await this.stateManager.workflow.save();
-        logger.info(`Workflow completed with state: ${this.stateManager.state}`);
+        this.stateManager.updateWorkflowState('COMPLETED');
     }
+
 }
 
 module.exports = WorkflowEngine;

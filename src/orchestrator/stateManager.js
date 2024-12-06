@@ -7,7 +7,7 @@ class StateManager {
         this.currentStepIndex = 0;
         this.state = 'IDLE'; // Options: IDLE, RUNNING, COMPLETED, FAILED
     }
-    
+
     async updateStepStatus(step) {
         const stepIndex = this.workflow.steps.findIndex(s => s._id.equals(step._id));
         if (stepIndex !== -1) {
@@ -17,20 +17,32 @@ class StateManager {
             await this.workflow.save(); // Veritabanına kaydet
         }
     }
-    
-    
+
+    getNextStep(stepName) {
+        return this.workflow.steps.find(step => step.name === stepName);
+    }
+
+    async updateWorkflowStatus(newState) {
+        this.workflow.state = newState;
+        if (newState === 'COMPLETED' || newState === 'FAILED') {
+            this.workflow.completedAt = new Date();
+        }
+        await this.workflow.save();
+        logger.info(`Workflow state updated to: ${newState}`);
+    }
+
     async updateWorkflowState(newState) {
         this.state = newState;
         this.workflow.state = newState;
-    
+
         if (newState === 'COMPLETED' || newState === 'FAILED') {
             this.workflow.completedAt = new Date(); // Tamamlama zamanı
         }
-    
+
         await this.workflow.save(); // MongoDB'ye kaydet
         logger.info(`Workflow state updated to: ${newState}`);
     }
-    
+
 
     getCurrentStep() {
         return this.workflow.steps[this.currentStepIndex];

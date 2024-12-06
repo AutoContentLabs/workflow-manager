@@ -8,7 +8,7 @@ const workflowDefinition = {
             "task": "collectData",
             "parameters": { "url": "http://example.com", "method": "GET" },
             "onSuccess": "step2",
-            "onFailure": "step5",
+            "onFailure": "handleFailure",
         },
         {
             "name": "step2",
@@ -23,7 +23,7 @@ const workflowDefinition = {
             "type": "action",
             "task": "validateData",
             "onSuccess": "step4",
-            "onFailure": "step5",
+            "onFailure": "handleFailure",
             "parameters": {}
         },
         {
@@ -31,15 +31,7 @@ const workflowDefinition = {
             "type": "action",
             "task": "finalizeData",
             "onSuccess": null,
-            "onFailure": "step5",
-            "parameters": {}
-        },
-        {
-            "name": "step5",
-            "type": "action",
-            "task": "handleFailure",
-            "onSuccess": null,
-            "onFailure": null,
+            "onFailure": "handleFailure",
             "parameters": {}
         }
     ]
@@ -53,7 +45,7 @@ const workflowDefinitionNew = {
             "task": "collectData",
             "parameters": { "url": "http://example.com", "method": "GET" },
             "onSuccess": "step2",
-            "onFailure": "step5",
+            "onFailure": "handleFailure",
         },
         {
             "name": "step2",
@@ -68,7 +60,7 @@ const workflowDefinitionNew = {
             "type": "action",
             "task": "validateData",
             "onSuccess": "step4",
-            "onFailure": "step5",
+            "onFailure": "handleFailure",
             "parameters": {}
         },
         {
@@ -76,15 +68,7 @@ const workflowDefinitionNew = {
             "type": "action",
             "task": "finalizeData",
             "onSuccess": null,
-            "onFailure": "step5",
-            "parameters": {}
-        },
-        {
-            "name": "step5",
-            "type": "action",
-            "task": "handleFailure",
-            "onSuccess": null,
-            "onFailure": null,
+            "onFailure": "handleFailure",
             "parameters": {}
         }
     ]

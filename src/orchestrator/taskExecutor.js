@@ -3,15 +3,17 @@ const taskRegistry = require('./TaskRegistry');
 
 class TaskExecutor {
     static async execute(taskName, step) {
-        step.startedAt = new Date(); // Başlangıç zamanı
-        await step.save(); // Veritabanına kaydet
-    
-        const result = await taskRegistry.execute(step.type, taskName, step);
-        
-        step.completedAt = new Date(); // Tamamlanma zamanı
-        return result;
+        try {
+            step.startedAt = new Date();
+            const result = await taskRegistry.execute(step.type, taskName, step);
+
+            step.completedAt = new Date();
+            return result;
+        } catch (error) {
+            logger.error(`Error executing task ${taskName}: ${error.message}`);
+            throw error;
+        }
     }
-    
 }
 
 module.exports = TaskExecutor;

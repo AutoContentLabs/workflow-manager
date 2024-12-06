@@ -11,7 +11,7 @@ async function send(event, providedPair) {
         key,
         headers
     };
-    return sendMessage(event, pair)
+    return await sendMessage(event, pair)
 }
 module.exports = {
     sendMessage: send,
