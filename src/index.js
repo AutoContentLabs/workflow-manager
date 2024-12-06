@@ -22,3 +22,11 @@ listenMessage("workflow", workflowController.startWorkflowListener);
 app.listen(PORT, () => {
     logger.notice(`Server is running on http://localhost:${PORT}`);
 });
+
+function handleShutdown() {
+    logger.info("Application shutting down...");
+    process.exit(0);
+}
+
+process.on("SIGINT", handleShutdown);
+process.on("SIGTERM", handleShutdown);
