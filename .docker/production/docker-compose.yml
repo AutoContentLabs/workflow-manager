@@ -8,6 +8,8 @@ services:
       - .env.${APP_ENV}
     networks:
       - network_shared
+    ports:
+      - "5000:5000"
     restart: always
     command: "npm start"
     deploy:
