@@ -8,6 +8,10 @@ class StateManager {
         this.state = 'IDLE'; // Options: IDLE, RUNNING, COMPLETED, FAILED
     }
 
+    isWorkflowCompleted() {
+        return this.workflow.steps.every(step => step.status === 'SUCCESS');
+    }
+    
     async updateStepStatus(step) {
         const stepIndex = this.workflow.steps.findIndex(s => s._id.equals(step._id));
         if (stepIndex !== -1) {
@@ -22,14 +26,21 @@ class StateManager {
         return this.workflow.steps.find(step => step.name === stepName);
     }
 
-    async updateWorkflowStatus(newState) {
-        this.workflow.state = newState;
-        if (newState === 'COMPLETED' || newState === 'FAILED') {
+    async updateWorkflowState(newState) {
+        if (this.isWorkflowCompleted()) {
+            this.workflow.state = 'COMPLETED';
             this.workflow.completedAt = new Date();
+        } else {
+            this.workflow.state = newState;
+            if (newState === 'FAILED') {
+                this.workflow.completedAt = new Date();
+            }
         }
-        await this.workflow.save();
-        logger.info(`Workflow state updated to: ${newState}`);
+    
+        await this.workflow.save(); // MongoDB'ye kaydet
+        logger.info(`Workflow state updated to: ${this.workflow.state}`);
     }
+    
 
     async updateWorkflowState(newState) {
         this.state = newState;

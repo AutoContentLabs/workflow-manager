@@ -33,7 +33,6 @@ class WorkflowEngine {
                         continue;
                     }
                 }
-                break;
             } catch (error) {
                 logger.error(`Error executing step: ${step.name}`, error);
 
@@ -48,11 +47,12 @@ class WorkflowEngine {
                 }
 
                 this.stateManager.updateWorkflowState('FAILED');
-                break;
+                return; // Hata olduğunda workflow durdurulur
             }
         }
 
-        this.stateManager.updateWorkflowState('COMPLETED');
+        // Tüm adımlar başarıyla tamamlandıysa
+        await this.stateManager.updateWorkflowState('COMPLETED');
     }
 
 }

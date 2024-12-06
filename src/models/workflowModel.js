@@ -13,12 +13,12 @@ const stepSchema = new mongoose.Schema({
     completedAt: { type: Date, default: null }
 });
 
-
 const workflowSchema = new mongoose.Schema({
     name: String,
     steps: [stepSchema],
     startedAt: { type: Date, default: null },
-    completedAt: { type: Date, default: null }
+    completedAt: { type: Date, default: null },
+    state: { type: String, enum: ['PENDING', 'RUNNING', 'COMPLETED', 'FAILED'], default: 'PENDING' } // Genel durum
 });
 
 const Workflow = mongoose.model('Workflow', workflowSchema);
