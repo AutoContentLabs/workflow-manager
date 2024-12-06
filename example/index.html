@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input, select, button { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Workflow Manager</h1>
+    <form id="workflowForm">
+        <label for="workflowName">Workflow Name:</label>
+        <input type="text" id="workflowName" name="workflowName" required><br>
+
+        <label for="steps">Steps (JSON format):</label>
+        <textarea id="steps" name="steps" rows="6" cols="40" required></textarea><br>
+
+        <button type="submit">Create Workflow</button>
+    </form>
+
+    <h2>Existing Workflows</h2>
+    <ul id="workflowList"></ul>
+
+    <script src="script.js"></script>
+</body>
+</html>
