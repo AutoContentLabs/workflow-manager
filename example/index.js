@@ -1,20 +1,24 @@
-// example\index.js
+/**
+ * @file example/index.js
+ */
+require('dotenv').config(); // Load the .env file
+
 const workflowDefinition = {
     "name": "auto-content",
     "steps": [
         {
             "name": "step1",
-            "type": "action",
+            "type": "ACTION",
             "task": "JOB_SCHEDULE_CREATE",
-            "parameters": { "url": "http://example.com", "method": "GET" },
+            "parameters": { "url": process.env.API_URL, "method": "GET" },
             "onSuccess": "step2",
             "onFailure": "handleFailure",
         },
         {
             "name": "step2",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_COLLECT_REQUEST",
-            "parameters": { "url": "http://example.com", "method": "GET" },
+            "parameters": { "url": process.env.API_URL, "method": "GET" },
             "onSuccess": "step3",
             "onFailure": "handleFailure",
         },
@@ -28,7 +32,7 @@ const workflowDefinition = {
         },
         {
             "name": "step4",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_PROCESSING_START",
             "onSuccess": "step5",
             "onFailure": "handleFailure",
@@ -36,7 +40,7 @@ const workflowDefinition = {
         },
         {
             "name": "step5",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_PROCESSING_RESULT",
             "onSuccess": null,
             "onFailure": "handleFailure",
@@ -44,7 +48,7 @@ const workflowDefinition = {
         },
         {
             "name": "step6",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_STORAGE",
             "onSuccess": "step7",
             "onFailure": "handleFailure",
@@ -52,7 +56,7 @@ const workflowDefinition = {
         },
         {
             "name": "step7",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_AGGREGATION",
             "onSuccess": "step8",
             "onFailure": "handleFailure",
@@ -60,7 +64,7 @@ const workflowDefinition = {
         },
         {
             "name": "step8",
-            "type": "action",
+            "type": "ACTION",
             "task": "ANALYSIS_REQUEST",
             "onSuccess": "step9",
             "onFailure": "handleFailure",
@@ -68,7 +72,7 @@ const workflowDefinition = {
         },
         {
             "name": "step9",
-            "type": "action",
+            "type": "ACTION",
             "task": "ANALYSIS_RESULT",
             "onSuccess": "step10",
             "onFailure": "handleFailure",
@@ -76,7 +80,7 @@ const workflowDefinition = {
         },
         {
             "name": "step10",
-            "type": "action",
+            "type": "ACTION",
             "task": "REPORT",
             "onSuccess": "step11",
             "onFailure": "handleFailure",
@@ -84,61 +88,64 @@ const workflowDefinition = {
         },
         {
             "name": "step11",
-            "type": "action",
+            "type": "ACTION",
             "task": "NOTIFICATION",
             "onSuccess": null,
             "onFailure": "handleFailure",
             "parameters": {}
         },
-
     ]
 };
+
+// Dynamic workflow name based on the current date
 const workflowDefinitionNew = {
     "name": "example_" + new Date().toISOString(),
     "steps": [
         {
             "name": "step1",
-            "type": "action",
+            "type": "ACTION",
             "task": "JOB_SCHEDULE_CREATE",
-            "parameters": { "url": "http://example.com", "method": "GET" },
+            "parameters": { "url": process.env.API_URL, "method": "GET" },
             "onSuccess": "step2",
             "onFailure": "handleFailure",
         },
         {
             "name": "step2",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_COLLECT_REQUEST",
-            "parameters": { "url": "http://example.com", "method": "GET" },
+            "parameters": { "url": process.env.API_URL, "method": "GET" },
             "onSuccess": null,
             "onFailure": "handleFailure",
         }
     ]
-}
+};
 
+// Send message
 const { sendMessage } = require('../src/utils/messaging');
 sendMessage("workflow", { value: workflowDefinitionNew });
-// curl -X POST http://localhost:5000/workflow/{WORKFLOW_ID}/start
-// curl -X POST http://localhost:5000/workflow/create \
-// -H "Content-Type: application/json" \
-// -d '{
-//     "name": "new",
-//     "steps": [
-//         {
-//             "name": "step1",
-//             "type": "action",
-//             "task": "JOB_SCHEDULE_CREATE",
-//             "parameters": { "url": "http://example.com", "method": "GET" },
-//             "onSuccess": "step2",
-//             "onFailure": "handleFailure",
-//         },
-//         {
-//             "name": "step2",
-//             "type": "action",
-//             "task": "DATA_COLLECT_REQUEST",
-//             "parameters": { "url": "http://example.com", "method": "GET" },
-//             "onSuccess": null,
-//             "onFailure": "handleFailure",
-//         }
-//     ]
-// }'
 
+// cURL command:
+console.log(`
+curl -X POST http://localhost:5000/workflow/create \\
+-H "Content-Type: application/json" \\
+-d '{
+    "name": "new",
+    "steps": [
+        {
+            "name": "step1",
+            "type": "ACTION",
+            "task": "JOB_SCHEDULE_CREATE",
+            "parameters": { "url": "${process.env.API_URL}", "method": "GET" },
+            "onSuccess": "step2",
+            "onFailure": "handleFailure",
+        },
+        {
+            "name": "step2",
+            "type": "ACTION",
+            "task": "DATA_COLLECT_REQUEST",
+            "parameters": { "url": "${process.env.API_URL}", "method": "GET" },
+            "onSuccess": null,
+            "onFailure": "handleFailure",
+        }
+    ]
+}'`);

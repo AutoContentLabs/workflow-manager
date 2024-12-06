@@ -4,14 +4,20 @@
   "type": "commonjs",
   "main": "src/index.js",
   "scripts": {
-    "dev": "node src"
+    "start": "dotenvx run -f .env.production -- node --max-old-space-size=2048 src/app.js",
+    "dev": "dotenvx run -f .env.development -- node --max-old-space-size=4096 --inspect --cpu-prof --gc-interval=60000 --optimize_for_size src/app.js",
+    "test": "dotenvx run -f .env.test -- jest"
   },
   "dependencies": {
     "@auto-content-labs/messaging": "github:AutoContentLabs/messaging",
     "@auto-content-labs/messaging-utils": "github:AutoContentLabs/messaging-utils",
-    "config": "^3.3.12",
-    "dotenv": "^16.4.7",
+    "@dotenvx/dotenvx": "^1.28.0",
     "express": "^4.21.2",
+    "cors": "^2.8.5",
     "mongoose": "^8.8.4"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }

@@ -1,16 +1,26 @@
-// src\controllers\workflowController.js
+/**
+ * @file src/controllers/workflowController.js
+ */
 const Workflow = require('../models/workflowModel');
 const WorkflowEngine = require('../orchestrator/workflowEngine');
 const logger = require('../utils/logger');
 
+// Create a new workflow and save it to the database
 async function createWorkflow(req, res) {
     try {
         const { name, steps } = req.body;
 
-        // Workflow veritabanına kaydediliyor
+        // Check if the workflow with the same name already exists
+        const existingWorkflow = await Workflow.findOne({ name });
+        if (existingWorkflow) {
+            return res.status(400).json({ message: `Workflow with the name '${name}' already exists.` });
+        }
+
+        // Create and save new workflow
         const workflow = new Workflow({ name, steps });
         await workflow.save();
 
+        logger.info(`Workflow '${name}' created successfully.`);
         res.status(201).json({ message: 'Workflow created successfully.', workflow });
     } catch (error) {
         logger.error(`Error creating workflow: ${error.message}`);
@@ -18,18 +28,22 @@ async function createWorkflow(req, res) {
     }
 }
 
+// Start the workflow by ID and run its steps
 async function startWorkflow(req, res) {
     try {
         const workflowId = req.params.id;
-        const workflow = await Workflow.findById(workflowId);
 
+        // Find the workflow by ID
+        const workflow = await Workflow.findById(workflowId);
         if (!workflow) {
             return res.status(404).json({ message: 'Workflow not found.' });
         }
 
+        // Start the workflow using the engine
         const engine = new WorkflowEngine(workflow);
         await engine.run();
 
+        logger.info(`Workflow '${workflow.name}' started successfully.`);
         res.json({ message: 'Workflow started successfully.' });
     } catch (error) {
         logger.error(`Error starting workflow: ${error.message}`);
@@ -37,47 +51,43 @@ async function startWorkflow(req, res) {
     }
 }
 
-// Workflow'u mesajla başlatmak için dinleyici
+// Listener to start workflow from an external message (e.g., webhook, event)
 async function startWorkflowListener({ value }) {
-    const { steps, name, id } = value; // ID, steps ve diğer gerekli bilgileri alıyoruz
+    const { steps, name, id } = value; // Extract necessary data from the message
     try {
         let workflow;
 
         if (id) {
-            // Eğer ID gönderildiyse veritabanında kontrol et
+            // If ID is provided, find the workflow by ID
             workflow = await Workflow.findById(id);
-
             if (!workflow) {
-                logger.error(`Workflow ID ${id} bulunamadı.`);
+                logger.error(`Workflow with ID ${id} not found.`);
                 return;
             }
-
-            logger.info(`Workflow ID ${id} bulundu.`);
+            logger.info(`Workflow with ID ${id} found.`);
         } else if (name && steps) {
-            // Eğer ID yoksa, isme göre kontrol et ve kaydet
+            // If name and steps are provided, create a new workflow
             workflow = await Workflow.findOne({ name });
-
             if (!workflow) {
                 workflow = new Workflow({ name, steps });
                 await workflow.save();
-                logger.info(`Yeni workflow ${name} başarıyla kaydedildi.`);
+                logger.info(`New workflow '${name}' created successfully.`);
             } else {
-                logger.info(`Workflow ${name} zaten mevcut.`);
+                logger.info(`Workflow '${name}' already exists.`);
             }
         } else {
-            logger.error('Eksik veya geçersiz workflow verisi alındı.');
+            logger.error('Received incomplete or invalid workflow data.');
             return;
         }
 
-        // Workflow işleyicisini başlat
+        // Run the workflow using the engine
         const engine = new WorkflowEngine(workflow);
         await engine.run();
 
-        logger.info(`Workflow ${workflow.name} başarıyla tamamlandı.`);
+        logger.info(`Workflow '${workflow.name}' completed successfully.`);
     } catch (error) {
-        logger.error(`Workflow çalıştırma hatası: ${error.message}`);
+        logger.error(`Error running workflow: ${error.message}`);
     }
 }
-
 
 module.exports = { startWorkflow, createWorkflow, startWorkflowListener };

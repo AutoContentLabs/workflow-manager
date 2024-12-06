@@ -1,50 +1,53 @@
-// src\workflows\defaultWorkflow.js
+/**
+ * @file src/workflows/defaultWorkflow.js
+ */
 module.exports = {
+    "id": 1,
     "name": "auto-content",
     "steps": [
         {
             "name": "step1",
-            "type": "action",
+            "type": "ACTION",
             "task": "JOB_SCHEDULE_CREATE",
-            "parameters": { "url": "http://example.com", "method": "GET" },
+            "parameters": { "url": process.env.API_URL, "method": "GET" },
             "onSuccess": "step2",
-            "onFailure": "handleFailure",
+            "onFailure": "handleFailure",  // Define this step to handle failures
         },
         {
             "name": "step2",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_COLLECT_REQUEST",
-            "parameters": { "url": "http://example.com", "method": "GET" },
+            "parameters": { "url": process.env.API_URL, "method": "GET" },
             "onSuccess": "step3",
             "onFailure": "handleFailure",
         },
         {
             "name": "step3",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_COLLECT_RESPONSE",
             "onSuccess": "step4",
             "onFailure": "handleFailure",
-            "parameters": {}
+            "parameters": {}  // Make sure this is dynamic if needed
         },
         {
             "name": "step4",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_PROCESSING_START",
             "onSuccess": "step5",
             "onFailure": "handleFailure",
-            "parameters": {}
+            "parameters": {}  // Ensure correct parameters are passed
         },
         {
             "name": "step5",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_PROCESSING_RESULT",
-            "onSuccess": null,
+            "onSuccess": null,  // End of the process or handover to another workflow
             "onFailure": "handleFailure",
             "parameters": {}
         },
         {
             "name": "step6",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_STORAGE",
             "onSuccess": "step7",
             "onFailure": "handleFailure",
@@ -52,7 +55,7 @@ module.exports = {
         },
         {
             "name": "step7",
-            "type": "action",
+            "type": "ACTION",
             "task": "DATA_AGGREGATION",
             "onSuccess": "step8",
             "onFailure": "handleFailure",
@@ -60,7 +63,7 @@ module.exports = {
         },
         {
             "name": "step8",
-            "type": "action",
+            "type": "ACTION",
             "task": "ANALYSIS_REQUEST",
             "onSuccess": "step9",
             "onFailure": "handleFailure",
@@ -68,7 +71,7 @@ module.exports = {
         },
         {
             "name": "step9",
-            "type": "action",
+            "type": "ACTION",
             "task": "ANALYSIS_RESULT",
             "onSuccess": "step10",
             "onFailure": "handleFailure",
@@ -76,21 +79,27 @@ module.exports = {
         },
         {
             "name": "step10",
-            "type": "action",
+            "type": "ACTION",
             "task": "REPORT",
-            "onSuccess": "step11",
+            "onSuccess": "step11",  // Possible final step in the workflow
             "onFailure": "handleFailure",
             "parameters": {}
         },
         {
             "name": "step11",
-            "type": "action",
-            "task": "NOTIFICATION",
-            "onSuccess": null,
+            "type": "ACTION",
+            "task": "NOTIFICATION",  // Send notifications after the workflow completes
+            "onSuccess": null,  // No further steps (end of the workflow)
             "onFailure": "handleFailure",
             "parameters": {}
         },
-
+        {
+            "name": "handleFailure",
+            "type": "ACTION",
+            "task": "FAILURE_HANDLING",  // Define a task for failure handling
+            "onSuccess": null,  // End the process after failure handling
+            "onFailure": null,
+            "parameters": { "message": "Workflow failed at step: {step.name}" }  // Pass failure details
+        }
     ]
 };
-

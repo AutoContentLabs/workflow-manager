@@ -1,3 +1,0 @@
-{
-    "mongoURI": "mongodb://mongo_user:mongo_password@localhost:27017/WORKFLOW_MANAGER?authSource=admin"
-}
