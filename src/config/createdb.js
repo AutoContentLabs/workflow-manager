@@ -1,3 +1,5 @@
+// src\config\createdb.js
+// mongo db creattor ui
 const database = 'WORKFLOW_MANAGER';
 const collection = 'workflows';
 

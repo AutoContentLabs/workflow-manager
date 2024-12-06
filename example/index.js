@@ -1,3 +1,4 @@
+// example\index.js
 const workflowDefinition = {
     "name": "auto-content",
     "steps": [
