@@ -1,4 +1,3 @@
-// script.js
 document.getElementById('workflowForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -23,24 +22,34 @@ document.getElementById('workflowForm').addEventListener('submit', async functio
         } else {
             const data = await response.json();
             alert('Workflow created: ' + JSON.stringify(data.workflow));
-            loadWorkflows();
+            loadWorkflows(); // Refresh the list after creating the workflow
         }
     } catch (error) {
         alert('Error: ' + error.message);
     }
 });
 
-
 async function loadWorkflows() {
     try {
         const response = await fetch('http://localhost:5000/workflow/list');
-        const workflows = await response.json();
+        const data = await response.json();
+        
+        if (data.message !== "Workflows fetched successfully.") {
+            alert('Error fetching workflows: ' + data.message);
+            return;
+        }
+        
+        const workflows = data.workflows;
         const workflowList = document.getElementById('workflowList');
         workflowList.innerHTML = '';
 
-        Object.values(workflows).forEach(workflow => {
+        workflows.forEach(workflow => {
             const listItem = document.createElement('li');
-            listItem.textContent = workflow.name + ': ' + JSON.stringify(workflow.steps);
+            const stepsText = workflow.steps.map(step => {
+                return `${step.name} (${step.status}) - Started: ${step.startedAt ? new Date(step.startedAt).toLocaleString() : 'N/A'}, Completed: ${step.completedAt ? new Date(step.completedAt).toLocaleString() : 'N/A'}`;
+            }).join('<br>');
+
+            listItem.innerHTML = `<strong>${workflow.name}</strong><br>State: ${workflow.state}<br>Steps:<br>${stepsText}<br><br>`;
             workflowList.appendChild(listItem);
         });
     } catch (error) {
@@ -48,5 +57,4 @@ async function loadWorkflows() {
     }
 }
 
-
-window.onload = loadWorkflows;
+window.onload = loadWorkflows;  // Load workflows on page load
