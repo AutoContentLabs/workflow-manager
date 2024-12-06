@@ -11,7 +11,7 @@
     "@auto-content-labs/messaging-utils": "github:AutoContentLabs/messaging-utils",
     "config": "^3.3.12",
     "dotenv": "^16.4.7",
-    "express": "^4.21.1",
-    "mongoose": "^8.8.3"
+    "express": "^4.21.2",
+    "mongoose": "^8.8.4"
   }
 }
