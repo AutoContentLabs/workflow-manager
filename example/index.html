@@ -5,24 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workflow Manager</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        input, select, button { margin: 10px 0; }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        h1, h2 { color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        input, select, button, textarea { padding: 10px; width: 100%; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #4CAF50; color: white; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        ul { padding-left: 20px; }
+        li { margin: 10px 0; padding: 10px; background-color: #f1f1f1; border-radius: 4px; }
+        .step-form { margin-top: 20px; }
+        .step-entry { margin: 10px 0; padding: 10px; background-color: #e9e9e9; border-radius: 4px; }
+        .step-entry input, .step-entry select { width: 30%; display: inline-block; margin-right: 10px; }
     </style>
 </head>
 <body>
-    <h1>Workflow Manager</h1>
-    <form id="workflowForm">
-        <label for="workflowName">Workflow Name:</label>
-        <input type="text" id="workflowName" name="workflowName" required><br>
+    <div class="container">
+        <h1>Workflow Manager</h1>
 
-        <label for="steps">Steps (JSON format):</label>
-        <textarea id="steps" name="steps" rows="6" cols="40" required></textarea><br>
+        <form id="workflowForm">
+            <label for="workflowName">Workflow Name:</label>
+            <input type="text" id="workflowName" name="workflowName" required><br>
 
-        <button type="submit">Create Workflow</button>
-    </form>
+            <div class="step-form" id="stepsForm">
+                <h2>Steps</h2>
+                <div id="stepsList"></div>
+                <button type="button" id="addStepBtn">Add Step</button>
+            </div>
 
-    <h2>Existing Workflows</h2>
-    <ul id="workflowList"></ul>
+            <button type="submit">Create Workflow</button>
+        </form>
+
+        <h2>Existing Workflows</h2>
+        <ul id="workflowList"></ul>
+    </div>
 
     <script src="script.js"></script>
 </body>
