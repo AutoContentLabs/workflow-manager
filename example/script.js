@@ -76,7 +76,6 @@ function addStepForm(stepCount) {
       <input type="text" id="onFailure_${stepCount}" name="onFailure" placeholder="Error Handling"><br>
       <div id="status_${stepCount}" class="status pending">Status: Pending</div>
       <div id="completedAt_${stepCount}" class="completedAt">Completed At: N/A</div>
-      <button type="button" onclick="startTask(${stepCount})">Start Task</button>
     `;
 
     document.getElementById('stepsList').appendChild(stepEntry);
@@ -129,7 +128,6 @@ function gatherSteps() {
     });
     return steps;
 }
-
 
 // Load Existing Workflows
 async function loadWorkflows() {
@@ -185,4 +183,41 @@ async function startWorkflow(workflowId) {
     }
 }
 
-loadWorkflows();
+// Periodically Check Workflow Statuses
+function pollWorkflowStatus() {
+    setInterval(async () => {
+        try {
+            const response = await fetch('http://localhost:5000/workflow/list');
+            const data = await response.json();
+
+            const workflows = data.workflows || [];
+            const workflowList = document.getElementById('workflowList');
+            workflowList.innerHTML = ''; // Clear existing list
+
+            workflows.forEach(workflow => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                            <strong>${workflow.name}</strong><br>
+                            <div class="workflow-actions">
+                                <button onclick="startWorkflow('${workflow._id}')">Start</button>
+                            </div>
+                            <ul>
+                                ${workflow.steps.map(step => `
+                                    <li>
+                                        <strong>${step.name}</strong>: ${step.type}<br>
+                                        Task: ${step.task}<br>
+                                        Status: <span id="status-${step.name}">${step.status}</span><br>
+                                        ${step.completedAt ? `Completed At: ${new Date(step.completedAt).toLocaleString()}` : 'Not Completed'}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        `;
+                workflowList.appendChild(listItem);
+            });
+        } catch (error) {
+            alert('Error loading workflows: ' + error.message);
+        }
+    }, 5000); // Poll every 5 seconds
+}
+
+pollWorkflowStatus();
