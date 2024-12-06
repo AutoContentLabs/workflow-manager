@@ -9,6 +9,10 @@ class WorkflowEngine {
     }
 
     async run() {
+        if (!this.stateManager.workflow.startedAt) {
+            this.stateManager.workflow.startedAt = new Date(); // Workflow başlangıç zamanı
+            await this.stateManager.workflow.save();
+        }
         logger.info(`Starting workflow: ${this.stateManager.workflow.name}`);
         this.stateManager.state = 'RUNNING';
 
@@ -17,30 +21,31 @@ class WorkflowEngine {
             try {
                 await TaskExecutor.execute(step.task, step);
 
-                // Adım başarıyla tamamlandıysa durumu güncelle
-                step.status = 'SUCCESS';
+                step.status = 'SUCCESS'; // Adım başarıyla tamamlandı
+                step.completedAt = new Date(); // Tamamlanma zamanı
                 await this.stateManager.updateStepStatus(step);
 
-                this.stateManager.moveToNextStep(); // Move to next step based on success
+                await this.stateManager.moveToNextStep(); // Sonraki adıma geçiş
             } catch (error) {
                 logger.error(`Error in step: ${step.task}`);
-
-                step.status = 'FAILED'; // Adım başarısız olduysa durumu güncelle
+                step.status = 'FAILED'; // Adım başarısız oldu
+                step.completedAt = new Date(); // Tamamlanma zamanı
                 await this.stateManager.updateStepStatus(step);
 
                 if (step.onFailure) {
-                    logger.info(`Redirecting to failure task: ${step.onFailure}`);
+                    logger.info(`Executing failure task: ${step.onFailure}`);
                     await TaskExecutor.execute(step.onFailure, step);
-                    this.stateManager.handleFailure(); // Move to failure step
+                    await this.stateManager.handleFailure();
                 } else {
-                    this.stateManager.markFailed(); // If no failure task is defined
+                    await this.stateManager.updateWorkflowState('FAILED'); // Workflow başarısız
                 }
             }
         }
 
+        this.stateManager.workflow.completedAt = new Date(); // Workflow tamamlandı
+        await this.stateManager.workflow.save();
         logger.info(`Workflow completed with state: ${this.stateManager.state}`);
     }
-
 }
 
 module.exports = WorkflowEngine;

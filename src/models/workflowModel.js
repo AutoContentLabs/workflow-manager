@@ -8,13 +8,17 @@ const stepSchema = new mongoose.Schema({
     onSuccess: { type: String, required: false },
     onFailure: { type: String, required: false },
     parameters: { type: mongoose.Schema.Types.Mixed, required: false }, // Parametreler için esnek yapı
-    status: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED'], default: 'PENDING' } // Durum ekleniyor
+    status: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED'], default: 'PENDING' }, // Durum ekleniyor
+    startedAt: { type: Date, default: null },
+    completedAt: { type: Date, default: null }
 });
 
 
 const workflowSchema = new mongoose.Schema({
     name: String,
-    steps: [stepSchema]
+    steps: [stepSchema],
+    startedAt: { type: Date, default: null },
+    completedAt: { type: Date, default: null }
 });
 
 const Workflow = mongoose.model('Workflow', workflowSchema);
