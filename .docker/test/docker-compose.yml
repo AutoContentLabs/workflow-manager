@@ -1,0 +1,39 @@
+services:
+  app:
+    build:
+      context: ../../
+      dockerfile: .docker/test/Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker-host.sock
+      - ../..:/workspaces/app:cached
+    networks:
+      - network_test
+    depends_on:
+      mongo:
+        condition: service_healthy
+    env_file:
+      - .env.${APP_ENV}
+    command: "sleep infinity"
+
+  mongo:
+    image: mongo:8.0.3
+    env_file:
+      - .env.${APP_ENV}
+    ports:
+      - "27017:27017"
+    volumes:
+      - data_mongodb:/data/db
+    networks:
+      - network_test
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.runCommand({ ping: 1 })" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  data_mongodb:
+
+networks:
+  network_test:
+    driver: bridge

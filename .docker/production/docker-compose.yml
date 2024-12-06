@@ -1,0 +1,28 @@
+services:
+
+  service:
+    build:
+      context: ../../
+      dockerfile: .docker/production/Dockerfile
+    env_file:
+      - .env.${APP_ENV}
+    networks:
+      - network_shared
+    restart: always
+    command: "npm start"
+    deploy:
+      replicas: ${DEPLOY_REPLICAS}
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: "2g"
+        reservations:
+          cpus: "0.5"
+          memory: "1g"
+      restart_policy:
+        condition: on-failure
+
+networks:
+  network_shared:
+    # docker network create network_shared
+    external: true # Ensure this network exists or create it manually
