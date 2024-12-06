@@ -9,19 +9,33 @@
         font-family: Arial, sans-serif;
         margin: 20px;
         background-color: #f4f4f9;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-direction: column;
       }
+
       h1,
       h2 {
         color: #333;
       }
+
       .container {
-        max-width: 900px;
+        display: flex;
+        justify-content: space-between;
+        max-width: 1200px;
         margin: 0 auto;
         background-color: white;
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
+
+      .form-container,
+      .workflow-list-container {
+        width: 48%;
+      }
+
       input,
       select,
       button,
@@ -32,102 +46,127 @@
         border: 1px solid #ccc;
         border-radius: 4px;
       }
+
       button {
         background-color: #4caf50;
         color: white;
         cursor: pointer;
       }
+
       button:hover {
         background-color: #45a049;
       }
+
       ul {
         padding-left: 20px;
       }
+
       li {
         margin: 10px 0;
         padding: 10px;
         background-color: #f1f1f1;
         border-radius: 4px;
       }
+
       .step-form {
         margin-top: 20px;
       }
+
       .step-entry {
         margin: 10px 0;
         padding: 10px;
         background-color: #e9e9e9;
         border-radius: 4px;
       }
+
       .step-entry input,
       .step-entry select {
         width: 30%;
         display: inline-block;
         margin-right: 10px;
       }
+
       .loading-spinner {
         display: none;
         text-align: center;
         margin-top: 20px;
       }
+
       .step-entry input[type="text"],
       .step-entry input[type="number"] {
         width: calc(100% - 20px);
       }
+
       .workflow-actions {
         margin-top: 20px;
       }
+
       .workflow-actions button {
         background-color: #2196f3;
       }
+
       .workflow-actions button:hover {
         background-color: #0b7dda;
       }
+
       .status {
         margin-top: 10px;
       }
+
       .status {
         font-weight: bold;
         color: #4caf50;
       }
+
       .status.pending {
         color: #f39c12;
       }
+
       .status.in-progress {
         color: #f1c40f;
       }
+
       .status.completed {
         color: #27ae60;
+      }
+
+      .workflow-list-container h2 {
+        margin-bottom: 20px;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Workflow Manager</h1>
+      <div class="form-container">
+        <h1>Workflow Manager</h1>
 
-      <form id="workflowForm">
-        <label for="workflowName">Workflow Name:</label>
-        <input
-          type="text"
-          id="workflowName"
-          name="workflowName"
-          required
-        /><br />
+        <form id="workflowForm">
+          <label for="workflowName">Workflow Name:</label>
+          <input
+            type="text"
+            id="workflowName"
+            name="workflowName"
+            required
+          /><br />
 
-        <div class="step-form" id="stepsForm">
-          <h2>Steps</h2>
-          <div id="stepsList"></div>
-          <button type="button" id="addStepBtn">Add Step</button>
+          <div class="step-form" id="stepsForm">
+            <h2>Steps</h2>
+            <div id="stepsList"></div>
+            <button type="button" id="addStepBtn">Add Step</button>
+          </div>
+
+          <button type="submit">Create Workflow</button>
+        </form>
+
+        <div class="loading-spinner" id="loadingSpinner" style="display: none;">
+          Creating Workflow...
         </div>
-
-        <button type="submit">Create Workflow</button>
-      </form>
-
-      <div class="loading-spinner" id="loadingSpinner" style="display: none;">
-        Creating Workflow...
       </div>
 
-      <h2>Existing Workflows</h2>
-      <ul id="workflowList"></ul>
+      <div class="workflow-list-container">
+        <h2>Existing Workflows</h2>
+        <ul id="workflowList"></ul>
+      </div>
     </div>
 
     <script src="script.js"></script>
