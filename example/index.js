@@ -7,7 +7,7 @@ const workflowDefinition = {
             "type": "action",
             "task": "collectData",
             "parameters": { "url": "http://example.com", "method": "GET" },
-            "onSuccess": "step2",
+            "onSuccess": "step5",
             "onFailure": "step5",
         },
         {
@@ -44,11 +44,25 @@ const workflowDefinition = {
         }
     ]
 };
+const workflowDefinitionNew = {
+    "name": "dataCollection",
+    "steps": [
+        {
+            "name": "step1",
+            "type": "action",
+            "task": "handleFailure",
+            "onSuccess": null,
+            "onFailure": null,
+            "parameters": {}
+        }
+    ]
+}
 
 const { sendMessage } = require('../src/utils/messaging');
 
+// sendMessage("workflow", { value: { "id": workflowDefinition.id } });
 // sendMessage("workflow", { value: workflowDefinition });
-sendMessage("workflow", { value: { "id": workflowDefinition.id } });
+sendMessage("workflow", { value: workflowDefinitionNew });
 // curl -X POST http://localhost:5000/workflow/{WORKFLOW_ID}/start
 // curl -X POST http://localhost:5000/workflow/67521253c468528a37b913dc/start
 // curl -X POST http://localhost:5000/workflow/create \

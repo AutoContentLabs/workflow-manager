@@ -21,12 +21,12 @@ class TaskRegistry {
 const taskRegistry = new TaskRegistry();
 
 taskRegistry.register('action', async (taskName, step) => {
-    console.log(`action ${taskName}`, step)
+    console.log(`action ${taskName}`)
     return "" //await sendMessage(taskName, { value: step });
 });
 
 taskRegistry.register('delay', async (taskName, step) => {
-    console.log(`delay  ${taskName}`, step)
+    console.log(`delay  ${taskName}`)
     return "" //new Promise(resolve => setTimeout(resolve, step.parameters.duration));
 });
 
