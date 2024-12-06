@@ -49,7 +49,7 @@ taskRegistry.register('ACTION', async (taskName, step) => {
     const cleanStep = JSON.parse(JSON.stringify(step)); // Deep clone the step to avoid mutation
     try {
         // Example of sending a message (could be a call to external service or internal logic)
-        result = await sendMessage(taskName, { value: cleanStep });
+        result = await sendMessage("WORKFLOW_EVENT", { value: cleanStep });
         logger.info(`Action completed: ${taskName}`);
     } catch (error) {
         logger.error(`Error in 'ACTION' task: ${error.message}`);

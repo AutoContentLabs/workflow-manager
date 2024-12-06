@@ -25,7 +25,7 @@ app.post('/workflow/create', workflowController.createWorkflow); // Create a new
 app.post('/workflow/:id/start', workflowController.startWorkflow); // Start a workflow by ID
 
 // Listen for workflow-related messages
-listenMessage("workflow", workflowController.startWorkflowListener);
+listenMessage("WORKFLOW", workflowController.startWorkflowListener);
 
 // Health check route
 app.get('/health', (req, res) => {
