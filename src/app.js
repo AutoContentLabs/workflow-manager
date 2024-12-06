@@ -20,6 +20,7 @@ connectDB();
 require("./initialize"); // Initialize workflows or dependencies
 
 // Define routes
+app.get('/workflow/list', workflowController.listWorkflows); // List all workflows
 app.post('/workflow/create', workflowController.createWorkflow); // Create a new workflow
 app.post('/workflow/:id/start', workflowController.startWorkflow); // Start a workflow by ID
 

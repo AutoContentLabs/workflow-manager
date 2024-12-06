@@ -5,6 +5,23 @@ const Workflow = require('../models/workflowModel');
 const WorkflowEngine = require('../orchestrator/workflowEngine');
 const logger = require('../utils/logger');
 
+// List all workflows
+async function listWorkflows(req, res) {
+    try {
+        // Fetch all workflows from the database
+        const workflows = await Workflow.find();
+
+        if (workflows.length === 0) {
+            return res.status(404).json({ message: 'No workflows found.' });
+        }
+
+        res.status(200).json({ message: 'Workflows fetched successfully.', workflows });
+    } catch (error) {
+        logger.error(`Error fetching workflows: ${error.message}`);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+}
+
 // Create a new workflow and save it to the database
 async function createWorkflow(req, res) {
     try {
@@ -90,4 +107,4 @@ async function startWorkflowListener({ value }) {
     }
 }
 
-module.exports = { startWorkflow, createWorkflow, startWorkflowListener };
+module.exports = { listWorkflows, createWorkflow, startWorkflow, startWorkflowListener };
