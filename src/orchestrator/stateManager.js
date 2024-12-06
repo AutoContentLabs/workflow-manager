@@ -1,35 +1,48 @@
 // src\orchestrator\stateManager.js
+const logger = require('../utils/logger');
+
 class StateManager {
     constructor(workflow) {
         this.workflow = workflow;
         this.currentStepIndex = 0;
         this.state = 'IDLE'; // Options: IDLE, RUNNING, COMPLETED, FAILED
     }
+    async updateStepStatus(step) {
+        const stepIndex = this.workflow.steps.findIndex(s => s._id.equals(step._id));
+        if (stepIndex !== -1) {
+            this.workflow.steps[stepIndex].status = step.status;
+            await this.workflow.save(); // Veritabanına kaydet
+        }
+    }
+    async updateWorkflowState(newState) {
+        this.state = newState;
+        this.workflow.state = newState; // Workflow nesnesinde durumu güncelle
+        await this.workflow.save(); // MongoDB'ye kaydet
+        logger.info(`Workflow state updated to: ${newState}`);
+    }
 
     getCurrentStep() {
         return this.workflow.steps[this.currentStepIndex];
     }
 
-    moveToNextStep() {
+    async moveToNextStep() {
         const currentStep = this.getCurrentStep();
         if (this.state === 'FAILED') {
             return; // Eğer durumda failure varsa, bir sonraki adıma geçme
         }
-    
+
         if (currentStep.onSuccess) {
             const nextStep = this.workflow.steps.find(step => step.name === currentStep.onSuccess);
             if (nextStep) {
                 this.currentStepIndex = this.workflow.steps.indexOf(nextStep);
             }
         } else {
-            this.state = 'COMPLETED'; // Son adımda başarı durumuna geçiş
+            await this.updateWorkflowState('COMPLETED'); // Son adımda başarı durumuna geçiş
         }
     }
-    
 
-    handleFailure() {
+    async handleFailure() {
         const currentStep = this.getCurrentStep();
-        // Eğer zaten failure adımı çalışmışsa, sonlandır
         if (this.state === 'FAILED') {
             logger.info('Failure already handled, skipping failure step.');
             return;
@@ -38,16 +51,11 @@ class StateManager {
             const failureStep = this.workflow.steps.find(step => step.name === currentStep.onFailure);
             if (failureStep) {
                 this.currentStepIndex = this.workflow.steps.indexOf(failureStep);
-                this.state = 'FAILED'; // Hata yönetimi adımına geçtikten sonra durumu FAILED olarak işaretle
+                await this.updateWorkflowState('FAILED'); // Hata durumuna geçiş
             }
         } else {
-            this.state = 'FAILED'; // Eğer failure adımı yoksa, workflow'u FAILED olarak işaretle
+            await this.updateWorkflowState('FAILED'); // Eğer failure adımı yoksa FAILED olarak işaretle
         }
-    }
-    
-
-    markFailed() {
-        this.state = 'FAILED';
     }
 }
 

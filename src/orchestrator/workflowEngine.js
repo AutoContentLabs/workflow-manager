@@ -16,9 +16,18 @@ class WorkflowEngine {
             const step = this.stateManager.getCurrentStep();
             try {
                 await TaskExecutor.execute(step.task, step);
+
+                // Adım başarıyla tamamlandıysa durumu güncelle
+                step.status = 'SUCCESS';
+                await this.stateManager.updateStepStatus(step);
+
                 this.stateManager.moveToNextStep(); // Move to next step based on success
             } catch (error) {
                 logger.error(`Error in step: ${step.task}`);
+
+                step.status = 'FAILED'; // Adım başarısız olduysa durumu güncelle
+                await this.stateManager.updateStepStatus(step);
+
                 if (step.onFailure) {
                     logger.info(`Redirecting to failure task: ${step.onFailure}`);
                     await TaskExecutor.execute(step.onFailure, step);
@@ -31,6 +40,7 @@ class WorkflowEngine {
 
         logger.info(`Workflow completed with state: ${this.stateManager.state}`);
     }
+
 }
 
 module.exports = WorkflowEngine;
