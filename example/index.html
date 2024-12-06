@@ -1,44 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Workflow Manager</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
-        h1, h2 { color: #333; }
-        .container { max-width: 900px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        input, select, button, textarea { padding: 10px; width: 100%; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
-        button { background-color: #4CAF50; color: white; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-        ul { padding-left: 20px; }
-        li { margin: 10px 0; padding: 10px; background-color: #f1f1f1; border-radius: 4px; }
-        .step-form { margin-top: 20px; }
-        .step-entry { margin: 10px 0; padding: 10px; background-color: #e9e9e9; border-radius: 4px; }
-        .step-entry input, .step-entry select { width: 30%; display: inline-block; margin-right: 10px; }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f4f9;
+      }
+      h1,
+      h2 {
+        color: #333;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      input,
+      select,
+      button,
+      textarea {
+        padding: 10px;
+        width: 100%;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      ul {
+        padding-left: 20px;
+      }
+      li {
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #f1f1f1;
+        border-radius: 4px;
+      }
+      .step-form {
+        margin-top: 20px;
+      }
+      .step-entry {
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #e9e9e9;
+        border-radius: 4px;
+      }
+      .step-entry input,
+      .step-entry select {
+        width: 30%;
+        display: inline-block;
+        margin-right: 10px;
+      }
+      .loading-spinner {
+        display: none;
+        text-align: center;
+        margin-top: 20px;
+      }
+      .step-entry input[type="text"],
+      .step-entry input[type="number"] {
+        width: calc(100% - 20px);
+      }
+      .workflow-actions {
+        margin-top: 20px;
+      }
+      .workflow-actions button {
+        background-color: #2196f3;
+      }
+      .workflow-actions button:hover {
+        background-color: #0b7dda;
+      }
+      .status {
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>Workflow Manager</h1>
+      <h1>Workflow Manager</h1>
 
-        <form id="workflowForm">
-            <label for="workflowName">Workflow Name:</label>
-            <input type="text" id="workflowName" name="workflowName" required><br>
+      <form id="workflowForm">
+        <label for="workflowName">Workflow Name:</label>
+        <input
+          type="text"
+          id="workflowName"
+          name="workflowName"
+          required
+        /><br />
 
-            <div class="step-form" id="stepsForm">
-                <h2>Steps</h2>
-                <div id="stepsList"></div>
-                <button type="button" id="addStepBtn">Add Step</button>
-            </div>
+        <div class="step-form" id="stepsForm">
+          <h2>Steps</h2>
+          <div id="stepsList"></div>
+          <button type="button" id="addStepBtn">Add Step</button>
+        </div>
 
-            <button type="submit">Create Workflow</button>
-        </form>
+        <button type="submit">Create Workflow</button>
+      </form>
 
-        <h2>Existing Workflows</h2>
-        <ul id="workflowList"></ul>
+      <div class="loading-spinner" id="loadingSpinner">
+        Creating Workflow...
+      </div>
+
+      <h2>Existing Workflows</h2>
+      <ul id="workflowList"></ul>
     </div>
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
