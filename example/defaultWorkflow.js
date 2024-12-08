@@ -1,5 +1,5 @@
 /**
- * @file src/workflows/defaultWorkflow.js
+ * @file example/defaultWorkflow.js
  */
 module.exports = {
     name: "autoDataProcessing",
