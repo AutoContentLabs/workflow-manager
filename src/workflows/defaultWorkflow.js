@@ -2,10 +2,11 @@
  * @file src/workflows/defaultWorkflow.js
  */
 module.exports = {
-    name: "autoDataProcessing",
-    description: `Automated DAG-based workflow with data processing and analysis`,
-    type: "pipeline",
-    status: 'idle', // idle, pending, running, completed, failed
+    name: "autoContentGeneration",
+    description: `Automated pipeline for content creation based on real-time trends analysis.`,
+    type: "PIPELINE",
+    state: "IDLE", // 'IDLE', 'PENDING', 'RUNNING', 'COMPLETED', 'FAILED'
+    status: "IDLE", // 'IDLE', 'RUNNING', 'COMPLETED', 'FAILED'
     dependencies: [],
     on_start: [
         {
@@ -19,28 +20,30 @@ module.exports = {
                 timeout: 120, // Set maximum allowed runtime for each task
                 retries: 3, // Number of retries in case of task failure
             },
-            timestamp: "",
+            // timestamp // Timestamp when the pipeline started,
         }
     ],
     on_failure: [
         {
             type: "function",
             name: "handlePipelineFailure",
-            timestamp: ""
+            // timestamp // Timestamp when the pipeline failure
         }
     ],
     on_success: [
         {
             type: "status",
             name: "completed",
-            timestamp: ""
+            // timestamp // Timestamp when the pipeline completed
         }
     ],
     steps: [
         {
             name: "dataPreprocessing",
             description: `Retrieve and process data from multiple sources for initial analysis`,
-            type: "workflow",
+            type: "WORKFLOW",
+            state: "IDLE", // 'IDLE', 'PENDING', 'RUNNING', 'COMPLETED', 'FAILED'
+            status: "PENDING", // 'PENDING', 'RUNNING', 'SUCCESS', 'FAILED'
             dependencies: [],
             on_start: [
                 {
@@ -53,21 +56,21 @@ module.exports = {
                         timeout: 60, // Maximum allowed time for this task
                         retries: 2, // Retry the task up to 2 times on failure
                     },
-                    timestamp: ""
+                    // timestamp // Timestamp when the workflow started,
                 }
             ],
             on_failure: [
                 {
                     type: "function",
                     name: "handleWorkflowFailure",
-                    timestamp: ""
+                    // timestamp // Timestamp when the workflow failure
                 }
             ],
             on_success: [
                 {
                     type: "status",
                     name: "completed",
-                    timestamp: ""
+                    // timestamp // Timestamp when the workflow completed
                 }
             ],
             steps: [
@@ -75,6 +78,8 @@ module.exports = {
                     name: "loadDataSources",
                     description: `Request data from external services and load them into the system`,
                     type: "task",
+                    state: "IDLE", // 'IDLE', 'PENDING', 'RUNNING', 'COMPLETED', 'FAILED'
+                    status: "IDLE", // 'IDLE', 'RUNNING', 'COMPLETED', 'FAILED'
                     dependencies: [],
                     on_start: [
                         {
@@ -117,6 +122,8 @@ module.exports = {
                     name: "processData",
                     description: `Process the loaded data and prepare it for further analysis`,
                     type: "task",
+                    state: "IDLE", // 'IDLE', 'PENDING', 'RUNNING', 'COMPLETED', 'FAILED'
+                    status: "IDLE", // 'IDLE', 'RUNNING', 'COMPLETED', 'FAILED'
                     dependencies: [
                         {
                             type: "step",
@@ -154,24 +161,26 @@ module.exports = {
                     on_success: [
                         {
                             type: "step",
-                            name: "dataAnalysis"
+                            name: "generateContent"
                         }
                     ]
                 }
             ]
         },
         {
-            name: "dataAnalysis",
-            description: `Analyze the processed data and generate insights for reporting`,
+            name: "generateContent",
+            description: `Generate content (video and articles) based on processed data and trends`,
             type: "workflow",
+            state: "IDLE", // 'IDLE', 'PENDING', 'RUNNING', 'COMPLETED', 'FAILED'
+            status: "IDLE", // 'IDLE', 'RUNNING', 'COMPLETED', 'FAILED'
             dependencies: [],
             on_start: [
                 {
                     type: "config",
-                    name: "analysisConfig",
+                    name: "contentGenerationConfig",
                     parameters: {
-                        parallel: false,
-                        timeout: 60,
+                        parallel: true,
+                        timeout: 90,
                         retries: 3,
                     }
                 }
@@ -190,14 +199,16 @@ module.exports = {
             ],
             steps: [
                 {
-                    name: "performAnalysis",
-                    description: `Send data to the data-analyzer service for analysis and save the results`,
+                    name: "createArticle",
+                    description: `Generate an article based on the data analysis`,
                     type: "task",
+                    state: "IDLE", // 'IDLE', 'PENDING', 'RUNNING', 'COMPLETED', 'FAILED'
+                    status: "IDLE", // 'IDLE', 'RUNNING', 'COMPLETED', 'FAILED'
                     dependencies: [],
                     on_start: [
                         {
                             type: "service",
-                            name: "data-analyzer-service",
+                            name: "content-creator-service",
                             parameters: {
                                 parallel: false,
                                 timeout: 45,
@@ -206,12 +217,12 @@ module.exports = {
                             input: {
                                 storage: {
                                     database: "postgresql",
-                                    collection: "analysis_results",
+                                    collection: "articles_data",
                                     flow: "outgoing"
                                 }
                             },
                             output: {
-                                format: "json",
+                                format: "text",
                                 data: []
                             },
                         }
@@ -225,28 +236,41 @@ module.exports = {
                     on_success: [
                         {
                             type: "step",
-                            name: "sendNotification"
+                            name: "generateVideo"
                         }
                     ]
                 },
                 {
-                    name: "sendNotification",
-                    description: `Notify stakeholders of the analysis results and schedule next cycle`,
+                    name: "generateVideo",
+                    description: `Generate a video based on the content analysis`,
                     type: "task",
+                    state: "IDLE", // 'IDLE', 'PENDING', 'RUNNING', 'COMPLETED', 'FAILED'
+                    status: "IDLE", // 'IDLE', 'RUNNING', 'COMPLETED', 'FAILED'
                     dependencies: [
                         {
                             type: "step",
-                            name: "performAnalysis"
+                            name: "createArticle"
                         }
                     ],
                     on_start: [
                         {
                             type: "service",
-                            name: "notification-service",
+                            name: "video-generator-service",
                             parameters: {
                                 parallel: false,
-                                timeout: 15,
+                                timeout: 60,
                                 retries: 2,
+                            },
+                            input: {
+                                storage: {
+                                    database: "mongodb",
+                                    collection: "videos_data",
+                                    flow: "outgoing"
+                                }
+                            },
+                            output: {
+                                format: "video",
+                                data: []
                             },
                         }
                     ],
@@ -258,8 +282,72 @@ module.exports = {
                     ],
                     on_success: [
                         {
+                            type: "step",
+                            name: "publishContent"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            name: "publishContent",
+            description: `Publish the generated content to social media platforms`,
+            type: "workflow",
+            state: "IDLE", // 'IDLE', 'PENDING', 'RUNNING', 'COMPLETED', 'FAILED'
+            status: "IDLE", // 'IDLE', 'RUNNING', 'COMPLETED', 'FAILED'
+            dependencies: [],
+            on_start: [
+                {
+                    type: "config",
+                    name: "publishConfig",
+                    parameters: {
+                        parallel: true,
+                        timeout: 120,
+                        retries: 2,
+                    }
+                }
+            ],
+            on_failure: [
+                {
+                    type: "function",
+                    name: "handleWorkflowFailure"
+                }
+            ],
+            on_success: [
+                {
+                    type: "status",
+                    name: "completed"
+                }
+            ],
+            steps: [
+                {
+                    name: "shareOnSocialMedia",
+                    description: `Share generated article and video on social media platforms`,
+                    type: "task",
+                    state: "IDLE", // 'IDLE', 'PENDING', 'RUNNING', 'COMPLETED', 'FAILED'
+                    status: "IDLE", // 'IDLE', 'RUNNING', 'COMPLETED', 'FAILED'
+                    dependencies: [],
+                    on_start: [
+                        {
+                            type: "service",
+                            name: "social-media-service",
+                            parameters: {
+                                parallel: true,
+                                timeout: 45,
+                                retries: 2,
+                            }
+                        }
+                    ],
+                    on_failure: [
+                        {
+                            type: "function",
+                            name: "handleTaskFailure"
+                        }
+                    ],
+                    on_success: [
+                        {
                             type: "status",
-                            name: "completed"
+                            name: "published"
                         }
                     ]
                 }
